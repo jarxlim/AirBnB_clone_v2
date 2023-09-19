@@ -10,6 +10,7 @@ from models.state import State
 from models.city import City
 from models.amenity import Amenity
 from models.review import Review
+from models.engine.file_storage import FileStorage
 
 
 class HBNBCommand(cmd.Cmd):
@@ -122,9 +123,25 @@ class HBNBCommand(cmd.Cmd):
             print("** class doesn't exist **")
             return
         new_instance = HBNBCommand.classes[args]()
-        storage.save()
+        for i in range(1, len(args_list)):
+            # Separate the key and value into a tuple
+            attrs = args_list[i].partition("=")
+            key = attrs[0]
+            value = attrs[2]
+            # Parse the values
+            if '\"' in value:
+                value = value[1:-1]
+                value = value.replace("_", " ")
+            elif '.' in value:
+                value = float(value)
+            else:
+                value = int(value)
+
+            # Checking if the instance has the attribute before adding
+            if hasattr(new_instance, key):
+                setattr(new_instance, key, value)
+        new_instance.save()
         print(new_instance.id)
-        storage.save()
 
     def help_create(self):
         """ Help information for the create method """
@@ -206,11 +223,11 @@ class HBNBCommand(cmd.Cmd):
             if args not in HBNBCommand.classes:
                 print("** class doesn't exist **")
                 return
-            for k, v in storage._FileStorage__objects.items():
+            for k, v in storage.all(args).items():
                 if k.split('.')[0] == args:
                     print_list.append(str(v))
         else:
-            for k, v in storage._FileStorage__objects.items():
+            for k, v in storage.all(args).items():
                 print_list.append(str(v))
 
         print(print_list)
