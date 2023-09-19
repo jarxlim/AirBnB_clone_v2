@@ -1,5 +1,5 @@
 #!/usr/bin/python3
-"""This module instantiates an object of class FileStorage"""
+"""module instantiation for an object of class FileStorage"""
 import os
 
 

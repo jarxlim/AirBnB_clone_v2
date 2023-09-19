@@ -10,7 +10,7 @@ from sqlalchemy import ForeignKey
 
 
 class Review(BaseModel, Base):
-    """Representation of Review """
+    """Representing Review class"""
     if getenv('HBNB_TYPE_STORAGE') == 'db':
         __tablename__ = 'reviews'
         text = Column(String(1024),
