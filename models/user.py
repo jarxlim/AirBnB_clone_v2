@@ -12,14 +12,14 @@ class User(BaseModel, Base):
     """This is the class for user
     Attributes:
         email: email address
-        password: password for you login
+        _password: password for you login
         first_name: first name
         last_name: last name
     """
     if getenv('HBNB_TYPE_STORAGE') == 'db':
         __tablename__ = 'users'
         email = Column(String(128), nullable=False)
-        password = Column(String(128), nullable=False)
+        _password = Column(String(128), nullable=False)
         first_name = Column(String(128), nullable=True)
         last_name = Column(String(128), nullable=True)
         places = relationship('Place', backref='user',
@@ -28,7 +28,7 @@ class User(BaseModel, Base):
                            cascade='all, delete-orphan')
         else:
         email = ""
-        password = ""
+        _password = ""
         first_name = ""
         last_name = ""
 
@@ -38,9 +38,9 @@ class User(BaseModel, Base):
 
     @property
     def password(self):
-        return self.password
+        return self._password
 
     @password.setter
     def password(self, pwd):
-        """hashing password values"""
-        self.password = pwd
+        """hashing _password values"""
+        self._password = pwd
