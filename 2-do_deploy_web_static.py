@@ -4,28 +4,43 @@ Fabric script (based on the file 1-pack_web_static.py) that distributes
 an archive to your web servers, using the function do_deploy
 """
 
-from fabric.api import put, run, env
-from os.path import exists
+from os import path
+from fabric.api import *
+from datetime import datetime
 
+
+env.user = 'ubuntu'
+env.key_filename = '~/.ssh/id_rsa'
 env.hosts = ['100.25.153.251', '35.175.126.70']
 
 
 def do_deploy(archive_path):
-    """distributes archive to the web servers"""
-    if exists(archive_path) is False:
-        return False
-    try:
-        filename = archive_path.split("/")[-1]
-        no_ext = filename.split(".")[0]
-        path = "/data/web_static/releases/"
-        put(archive_path, '/tmp/')
-        run('mkdir -p {}{}/'.format(path, no_ext))
-        run('tar -xzf /tmp/{} -C {}{}/'.format(filename, path, no_ext))
-        run('rm /tmp/{}'.format(filename))
-        run('mv {0}{1}/web_static/* {0}{1}/'.format(path, no_ext))
-        run('rm -rf {}{}/web_static'.format(path, no_ext))
-        run('rm -rf /data/web_static/current')
-        run('ln -s {}{}/ /data/web_static/current'.format(path, no_ext))
+        """distributes an archive to your web servers
+        """
+        try:
+                if not (path.exists(archive_path)):
+                        return False
+
+                put(archive_path, '/tmp/')
+                timestamp = archive_path[-18:-4]
+                run('sudo mkdir -p /data/web_static/\
+releases/web_static_{}/'.format(timestamp))
+
+                run('sudo tar -xzf /tmp/web_static_{}.tgz -C \
+/data/web_static/releases/web_static_{}/'
+                    .format(timestamp, timestamp))
+
+                run('sudo rm /tmp/web_static_{}.tgz'.format(timestamp))
+                run('sudo mv /data/web_static/releases/web_static_{}/web_static/* \
+/data/web_static/releases/web_static_{}/'.format(timestamp, timestamp))
+                run('sudo rm -rf /data/web_static/releases/\
+web_static_{}/web_static'
+                    .format(timestamp))
+
+                run('sudo rm -rf /data/web_static/current')
+                run('sudo ln -s /data/web_static/releases/\
+web_static_{}/ /data/web_static/current'.format(timestamp))
+        except:
+                return False
+
         return True
-    except:
-        return False
